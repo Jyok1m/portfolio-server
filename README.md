@@ -35,3 +35,13 @@ ovh-server | SUCCESS => {
     "ping": "pong"
 }
 ```
+
+## Playbooks:
+
+### Hardening:
+
+Playbook for server securing + ssh hardening : `./ansible/hardening.yml`
+
+```
+ansible-playbook hardening.yml -i inventory.yml --ask-vault-pass
+```
