@@ -40,7 +40,9 @@ ovh-server | SUCCESS => {
 
 ### Hardening:
 
-Playbook for server securing + ssh hardening : `./ansible/hardening.yml`
+Playbook for server securing hardening : `./ansible/hardening.yml`
+
+Here, I decided not to configure the SSH port to be able to reconnect if something went wrong.
 
 ```
 ansible-playbook hardening.yml -i inventory.yml --ask-vault-pass
