@@ -47,3 +47,11 @@ Here, I decided not to configure the SSH port to be able to reconnect if somethi
 ```
 ansible-playbook hardening.yml -i inventory.yml --ask-vault-pass
 ```
+
+### Setup:
+
+Playbook for basic tool setup : `./ansible/setup.yml`
+
+```
+ansible-playbook setup.yml -i inventory.yml --ask-vault-pass
+```
