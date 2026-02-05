@@ -7,6 +7,8 @@
 EDITOR=nano ansible-vault create group_vars/all/vault.yml
 ```
 
+Here, you will be prompt to type a password to access your vault (`Vault password`)
+
 ### Edit vault:
 ```
 EDITOR=nano ansible-vault edit group_vars/all/vault.yml
