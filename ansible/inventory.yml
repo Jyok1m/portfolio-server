@@ -1,0 +1,7 @@
+all:
+  hosts:
+    ovh-server:
+      ansible_host: "{{ vault_server_host }}"
+      ansible_port: "{{ vault_server_port }}"
+      ansible_user: "{{ vault_server_user }}"
+      ansible_ssh_private_key_file: "{{ vault_ssh_key_path }}"
