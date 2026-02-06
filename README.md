@@ -28,6 +28,7 @@ This repository contains the Ansible configuration used to manage my personal OV
 
 ```
 .
+├── Makefile                        # Shortcut commands
 ├── ansible/
 │   ├── group_vars/
 │   │   └── all/
@@ -37,10 +38,9 @@ This repository contains the Ansible configuration used to manage my personal OV
 │   │   ├── fail2ban/             # Brute-force protection
 │   │   ├── networks/             # Docker networks
 │   │   └── traefik/              # Traefik reverse proxy + ACME
+│   ├── .vault_pass               # Vault password file (git-ignored)
 │   ├── inventory.yml             # Host inventory
-│   ├── hardening.yml             # Hardening playbook
-│   ├── setup.yml                 # Setup playbook
-│   └── services.yml              # Services deployment playbook
+│   └── playbook.yml              # Main playbook (all roles)
 └── README.md
 ```
 
@@ -68,7 +68,14 @@ cd ansible
 EDITOR=nano ansible-vault create group_vars/all/vault.yml
 ```
 
-You will be prompted for a **Vault password** — keep it safe, you'll need it for every playbook run.
+You will be prompted for a **Vault password** — keep it safe.
+
+Then store it in the password file so you don't have to type it each time:
+
+```bash
+echo 'your-vault-password' > .vault_pass
+chmod 600 .vault_pass
+```
 
 **Edit** the vault later:
 
@@ -88,7 +95,7 @@ vault_ssh_key_path: <ssh_file_path>
 ### 3. Test the Connection
 
 ```bash
-ansible ovh-server -i inventory.yml -m ping --ask-vault-pass
+make ping
 ```
 
 **Expected output:**
@@ -105,52 +112,25 @@ ovh-server | SUCCESS => {
 
 ---
 
-## Playbooks
+## Usage
 
-### Hardening
+| Command          | Description                              |
+|------------------|------------------------------------------|
+| `make all`       | Run all roles                            |
+| `make hardening` | Run hardening roles (fail2ban)           |
+| `make docker`    | Run Docker roles (docker + networks)     |
+| `make services`  | Run service roles (traefik)              |
+| `make ping`      | Test SSH connection to the server        |
+| `make help`      | Show available commands                  |
 
-Secures the server: Fail2ban
+| Role     | Tag         | Description                               |
+|----------|-------------|-------------------------------------------|
+| fail2ban | hardening   | Brute-force IP protection                 |
+| docker   | docker      | Container runtime + orchestration         |
+| networks | docker      | Docker networks for the services          |
+| traefik  | services    | Reverse proxy with automatic HTTPS (ACME) |
 
-```bash
-ansible-playbook hardening.yml -i inventory.yml --ask-vault-pass
-```
-
-| Role                   | Description               |
-|------------------------|---------------------------|
-| fail2ban               | Brute-force IP protection |
-
-> **Note:** The SSH hardening (port + auth config) is intentionally done manually (not by Ansible) directly on the server to prevent access lock.
-
-### Setup
-
-Installs base tooling and configures the working environment.
-
-```bash
-ansible-playbook setup.yml -i inventory.yml --ask-vault-pass
-```
-
-| Role                    | Description                         |
-|-------------------------|-------------------------------------|
-| docker                  | Container runtime + orchestration   |
-| networks                | Docker networks for the services    |
-
-### Services
-
-Deploys containerized services to the server.
-
-```bash
-ansible-playbook services.yml -i inventory.yml --ask-vault-pass
-```
-
-Deploy a single service with tags:
-
-```bash
-ansible-playbook services.yml -i inventory.yml --ask-vault-pass --tags traefik
-```
-
-| Role    | Description                                  |
-|---------|----------------------------------------------|
-| Traefik | Reverse proxy with automatic HTTPS (ACME)    |
+> **Note:** SSH hardening (port + auth config) is intentionally done manually on the server to prevent access lock.
 
 <p style="text-align: center">
   <sub>Built by <a href="https://github.com/Jyok1m">Joachim Alexandre Jasmin</a></sub>

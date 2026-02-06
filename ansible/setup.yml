@@ -1,5 +1,0 @@
-- hosts: ovh-server
-  become: yes
-  roles:
-    - { role: docker, tags: docker }
-    - { role: networks, tags: docker }
