@@ -1,0 +1,37 @@
+- name: Check if Docker is installed
+  command: docker --version
+  register: docker_installed
+  ignore_errors: yes
+  changed_when: false
+
+- name: Check if Docker Compose is installed
+  command: docker compose version
+  register: docker_compose_installed
+  ignore_errors: yes
+  changed_when: false
+
+# From : https://docs.docker.com/engine/install/debian/#install-using-the-convenience-script
+- name: Download Docker install script (because Docker not installed)
+  get_url:
+    url: https://get.docker.com
+    dest: /tmp/get-docker.sh
+    mode: '0755'
+  when: docker_installed.rc != 0 or docker_compose_installed.rc != 0
+
+- name: Run Docker install script (because Docker not installed)
+  command: sh /tmp/get-docker.sh
+  when: docker_installed.rc != 0 or docker_compose_installed.rc != 0
+
+# From : https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user
+- name: Add user to docker group (because we don't want sudo)
+  user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes
+  when: docker_installed.rc != 0 or docker_compose_installed.rc != 0
+
+- name: Ensure Docker is running
+  service:
+    name: docker
+    state: started
+    enabled: yes

@@ -4,14 +4,5 @@
     - name: Update apt cache (same as 'sudo apt update')
       apt:
         update_cache: yes
-
-    - name: Install fail2ban
-      apt:
-        name: fail2ban
-        state: present
-
-    - name: Ensure fail2ban is running
-      service:
-        name: fail2ban
-        state: started
-        enabled: yes
+  roles:
+    - { role: fail2ban, tags: fail2ban }

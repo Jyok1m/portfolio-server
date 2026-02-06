@@ -7,7 +7,8 @@
 This repository contains the Ansible configuration used to manage my personal OVH server. It covers:
 
 - **Security hardening** — Fail2ban
-- **Base setup** — Docker, essential packages, user configuration, monitoring tools
+- **Base setup** — Docker, Docker networks
+- **Services** — Traefik reverse proxy with automatic HTTPS
 
 ---
 
@@ -30,12 +31,12 @@ This repository contains the Ansible configuration used to manage my personal OV
 ├── ansible/
 │   ├── group_vars/
 │   │   └── all/
-│   │       ├── vars.yml          # General variables
 │   │       └── vault.yml         # Encrypted secrets (ansible-vault)
 │   ├── roles/
-│   │   ├── hardening/            # Security hardening tasks
-│   │   ├── setup/                # Base server setup tasks
-│   │   └── traefik/              # Traefik reverse proxy
+│   │   ├── docker/               # Docker installation
+│   │   ├── fail2ban/             # Brute-force protection
+│   │   ├── networks/             # Docker networks
+│   │   └── traefik/              # Traefik reverse proxy + ACME
 │   ├── inventory.yml             # Host inventory
 │   ├── hardening.yml             # Hardening playbook
 │   ├── setup.yml                 # Setup playbook
@@ -114,9 +115,9 @@ Secures the server: Fail2ban
 ansible-playbook hardening.yml -i inventory.yml --ask-vault-pass
 ```
 
-| Task                   | Description               |
+| Role                   | Description               |
 |------------------------|---------------------------|
-| Fail2ban               | Brute-force IP protection |
+| fail2ban               | Brute-force IP protection |
 
 > **Note:** The SSH hardening (port + auth config) is intentionally done manually (not by Ansible) directly on the server to prevent access lock.
 
@@ -128,10 +129,10 @@ Installs base tooling and configures the working environment.
 ansible-playbook setup.yml -i inventory.yml --ask-vault-pass
 ```
 
-| Task                    | Description                         |
+| Role                    | Description                         |
 |-------------------------|-------------------------------------|
-| Docker & Docker Compose | Container runtime + orchestration   |
-| Docker networks         | Different networks for the services |
+| docker                  | Container runtime + orchestration   |
+| networks                | Docker networks for the services    |
 
 ### Services
 
