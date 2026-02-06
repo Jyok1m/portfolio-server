@@ -16,6 +16,7 @@ services:
 
   jenkins:
     image: jyok1m/jenkins:latest
+    pull_policy: always
     container_name: jenkins-gui
     restart: on-failure
     networks:

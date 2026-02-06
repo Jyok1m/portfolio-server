@@ -34,3 +34,19 @@
   ansible.builtin.command:
     cmd: docker compose up -d
     chdir: /opt/jenkins
+
+- name: Check if known_hosts exists in Jenkins container
+  ansible.builtin.command:
+    cmd: docker exec jenkins-gui test -f /var/jenkins_home/.ssh/known_hosts
+  register: known_hosts_check
+  failed_when: false
+  changed_when: false
+
+- name: Setup GitHub SSH known hosts in Jenkins
+  ansible.builtin.command:
+    cmd: >
+      docker exec jenkins-gui bash -c
+      "mkdir -p /var/jenkins_home/.ssh &&
+      ssh-keyscan -t ed25519 github.com >> /var/jenkins_home/.ssh/known_hosts &&
+      chown -R jenkins:jenkins /var/jenkins_home/.ssh"
+  when: known_hosts_check.rc != 0
