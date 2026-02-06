@@ -21,6 +21,7 @@ services:
     networks:
       - jenkins-network
       - global-network
+      - odyssai-network
     environment:
       - DOCKER_HOST=tcp://docker:2376
       - DOCKER_CERT_PATH=/certs/client
@@ -46,6 +47,7 @@ services:
 networks:
   global-network: { external: true }
   jenkins-network: { external: true }
+  odyssai-network: { external: true }
 
 volumes:
   jenkins-data:
