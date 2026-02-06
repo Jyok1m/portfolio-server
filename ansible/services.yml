@@ -1,0 +1,4 @@
+- hosts: ovh-server
+  become: yes
+  roles:
+    - { role: traefik, tags: traefik }

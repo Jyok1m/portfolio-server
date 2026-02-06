@@ -34,10 +34,12 @@ This repository contains the Ansible configuration used to manage my personal OV
 │   │       └── vault.yml         # Encrypted secrets (ansible-vault)
 │   ├── roles/
 │   │   ├── hardening/            # Security hardening tasks
-│   │   └── setup/                # Base server setup tasks
+│   │   ├── setup/                # Base server setup tasks
+│   │   └── traefik/              # Traefik reverse proxy
 │   ├── inventory.yml             # Host inventory
 │   ├── hardening.yml             # Hardening playbook
-│   └── setup.yml                 # Setup playbook
+│   ├── setup.yml                 # Setup playbook
+│   └── services.yml              # Services deployment playbook
 └── README.md
 ```
 
@@ -130,6 +132,24 @@ ansible-playbook setup.yml -i inventory.yml --ask-vault-pass
 |-------------------------|-------------------------------------|
 | Docker & Docker Compose | Container runtime + orchestration   |
 | Docker networks         | Different networks for the services |
+
+### Services
+
+Deploys containerized services to the server.
+
+```bash
+ansible-playbook services.yml -i inventory.yml --ask-vault-pass
+```
+
+Deploy a single service with tags:
+
+```bash
+ansible-playbook services.yml -i inventory.yml --ask-vault-pass --tags traefik
+```
+
+| Role    | Description                                  |
+|---------|----------------------------------------------|
+| Traefik | Reverse proxy with automatic HTTPS (ACME)    |
 
 <p style="text-align: center">
   <sub>Built by <a href="https://github.com/Jyok1m">Joachim Alexandre Jasmin</a></sub>

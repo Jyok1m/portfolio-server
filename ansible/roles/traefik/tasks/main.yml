@@ -1,0 +1,26 @@
+- name: Create traefik directory
+  ansible.builtin.file:
+    path: /opt/traefik
+    state: directory
+    mode: "0755"
+
+- name: Copy docker-compose.yml
+  ansible.builtin.copy:
+    src: docker-compose.yml
+    dest: /opt/traefik/docker-compose.yml
+    mode: "0644"
+
+- name: Create acme.json (if missing)
+  ansible.builtin.command:
+    cmd: touch /opt/traefik/acme.json
+    creates: /opt/traefik/acme.json
+
+- name: Set acme.json permissions
+  ansible.builtin.file:
+    path: /opt/traefik/acme.json
+    mode: "0600"
+
+- name: Run docker compose up
+  ansible.builtin.command:
+    cmd: docker compose up -d
+    chdir: /opt/traefik
