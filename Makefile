@@ -15,9 +15,13 @@ hardening:
 docker:
 	$(ANSIBLE_CMD) --tags docker
 
-## Run service roles (traefik)
+## Run service roles (traefik, jenkins)
 services:
 	$(ANSIBLE_CMD) --tags services
+
+## Run Jenkins role only
+jenkins:
+	$(ANSIBLE_CMD) --tags jenkins
 
 ## Test SSH connection to the server
 ping:
@@ -31,10 +35,11 @@ help:
 	@echo "  all        Run all roles"
 	@echo "  hardening  Run hardening roles (fail2ban)"
 	@echo "  docker     Run Docker roles (docker + networks)"
-	@echo "  services   Run service roles (traefik)"
+	@echo "  services   Run service roles (traefik, jenkins)"
+	@echo "  jenkins    Run Jenkins role only"
 	@echo "  ping       Test SSH connection to the server"
 	@echo "  help       Show this help message"
 
 .DEFAULT_GOAL := help
 
-.PHONY: all hardening docker services ping help
+.PHONY: all hardening docker services jenkins ping help

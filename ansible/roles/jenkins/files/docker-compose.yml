@@ -1,0 +1,48 @@
+services:
+  docker:
+    image: docker:dind
+    container_name: jenkins-docker
+    privileged: true
+    networks:
+      jenkins-network:
+        aliases:
+          - docker
+    environment:
+      - DOCKER_TLS_CERTDIR=/certs
+    volumes:
+      - jenkins-docker-certs:/certs/client
+      - jenkins-data:/var/jenkins_home
+    command: --storage-driver overlay2
+
+  jenkins:
+    image: jyok1m/jenkins:latest
+    container_name: jenkins-gui
+    restart: on-failure
+    networks:
+      - jenkins-network
+      - global-network
+    environment:
+      - DOCKER_HOST=tcp://docker:2376
+      - DOCKER_CERT_PATH=/certs/client
+      - DOCKER_TLS_VERIFY=1
+      - JENKINS_OPTS=--httpPort=8080
+      - JENKINS_URL=https://jenkins.joachimjasmin.com/
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.jenkins.rule=Host(`jenkins.joachimjasmin.com`)
+      - traefik.http.routers.jenkins.entrypoints=websecure
+      - traefik.http.routers.jenkins.tls.certresolver=letsencrypt
+      - traefik.http.services.jenkins.loadbalancer.server.port=8080
+    volumes:
+      - jenkins-data:/var/jenkins_home
+      - jenkins-docker-certs:/certs/client:ro
+    depends_on:
+      - docker
+
+networks:
+  global-network: { external: true }
+  jenkins-network: { external: true }
+
+volumes:
+  jenkins-data:
+  jenkins-docker-certs:

@@ -8,7 +8,7 @@ This repository contains the Ansible configuration used to manage my personal OV
 
 - **Security hardening** — Fail2ban
 - **Base setup** — Docker, Docker networks
-- **Services** — Traefik reverse proxy with automatic HTTPS
+- **Services** — Traefik reverse proxy with automatic HTTPS, Jenkins CI/CD
 
 ---
 
@@ -37,7 +37,8 @@ This repository contains the Ansible configuration used to manage my personal OV
 │   │   ├── docker/               # Docker installation
 │   │   ├── fail2ban/             # Brute-force protection
 │   │   ├── networks/             # Docker networks
-│   │   └── traefik/              # Traefik reverse proxy + ACME
+│   │   ├── traefik/              # Traefik reverse proxy + ACME
+│   │   └── jenkins/              # Jenkins CI/CD server
 │   ├── .vault_pass               # Vault password file (git-ignored)
 │   ├── inventory.yml             # Host inventory
 │   └── playbook.yml              # Main playbook (all roles)
@@ -90,6 +91,8 @@ vault_server_host: <server_ip>
 vault_server_port: <port>
 vault_server_user: <user>
 vault_ssh_key_path: <ssh_file_path>
+vault_dockerhub_username: <dockerhub_username>
+vault_dockerhub_password: <dockerhub_token>
 ```
 
 ### 3. Test the Connection
@@ -119,7 +122,8 @@ ovh-server | SUCCESS => {
 | `make all`       | Run all roles                            |
 | `make hardening` | Run hardening roles (fail2ban)           |
 | `make docker`    | Run Docker roles (docker + networks)     |
-| `make services`  | Run service roles (traefik)              |
+| `make services`  | Run service roles (traefik, jenkins)     |
+| `make jenkins`   | Run Jenkins role only                    |
 | `make ping`      | Test SSH connection to the server        |
 | `make help`      | Show available commands                  |
 
@@ -129,6 +133,7 @@ ovh-server | SUCCESS => {
 | docker   | docker      | Container runtime + orchestration         |
 | networks | docker      | Docker networks for the services          |
 | traefik  | services    | Reverse proxy with automatic HTTPS (ACME) |
+| jenkins  | services    | CI/CD server (build + push to Docker Hub) |
 
 > **Note:** SSH hardening (port + auth config) is intentionally done manually on the server to prevent access lock.
 

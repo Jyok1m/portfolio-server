@@ -1,0 +1,36 @@
+- name: Create jenkins directory
+  ansible.builtin.file:
+    path: /opt/jenkins
+    state: directory
+    mode: "0755"
+
+- name: Copy docker-compose.yml
+  ansible.builtin.copy:
+    src: docker-compose.yml
+    dest: /opt/jenkins/docker-compose.yml
+    mode: "0644"
+
+- name: Copy Dockerfile
+  ansible.builtin.copy:
+    src: Dockerfile
+    dest: /opt/jenkins/Dockerfile
+    mode: "0644"
+
+- name: Login to Docker Hub
+  ansible.builtin.shell:
+    cmd: echo "{{ vault_dockerhub_password }}" | docker login -u {{ vault_dockerhub_username }} --password-stdin
+  no_log: true
+
+- name: Build Jenkins image
+  ansible.builtin.command:
+    cmd: docker build -t jyok1m/jenkins:latest .
+    chdir: /opt/jenkins
+
+- name: Push Jenkins image to Docker Hub
+  ansible.builtin.command:
+    cmd: docker push jyok1m/jenkins:latest
+
+- name: Run docker compose up
+  ansible.builtin.command:
+    cmd: docker compose up -d
+    chdir: /opt/jenkins
