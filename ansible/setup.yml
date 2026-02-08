@@ -9,4 +9,3 @@
     - { role: docker, tags: docker }
     - { role: networks, tags: docker }
     - { role: traefik, tags: services }
-    - { role: jenkins, tags: [services, jenkins] }

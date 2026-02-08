@@ -1,45 +1,78 @@
-PLAYBOOK = ansible/playbook.yml
 INVENTORY = ansible/inventory.yml
-VAULT_PASS = ansible/.vault_pass # To add manually (git-ignored)
-ANSIBLE_CMD = ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --vault-password-file $(VAULT_PASS)
+VAULT_PASS = ansible/.vault_pass
 
-## Run all roles
+ANSIBLE_BASE = ansible-playbook -i $(INVENTORY) --vault-password-file $(VAULT_PASS)
+
+SETUP_PLAYBOOK = ansible/setup.yml
+SERVICES_PLAYBOOK = ansible/services.yml
+APPS_PLAYBOOK = ansible/apps.yml
+
+# ── All ──────────────────────────────────────────
 all:
-	$(ANSIBLE_CMD)
+	$(ANSIBLE_BASE) $(SETUP_PLAYBOOK) $(SERVICES_PLAYBOOK) $(APPS_PLAYBOOK)
 
-## Run hardening roles (fail2ban)
+# ── Setup ────────────────────────────────────────
+setup:
+	$(ANSIBLE_BASE) $(SETUP_PLAYBOOK)
+
 hardening:
-	$(ANSIBLE_CMD) --tags hardening
+	$(ANSIBLE_BASE) $(SETUP_PLAYBOOK) --tags hardening
 
-## Run Docker roles (docker + networks)
 docker:
-	$(ANSIBLE_CMD) --tags docker
+	$(ANSIBLE_BASE) $(SETUP_PLAYBOOK) --tags docker
 
-## Run service roles (traefik, jenkins)
+# ── Services ─────────────────────────────────────
 services:
-	$(ANSIBLE_CMD) --tags services
+	$(ANSIBLE_BASE) $(SERVICES_PLAYBOOK)
 
-## Run Jenkins role only
+traefik:
+	$(ANSIBLE_BASE) $(SERVICES_PLAYBOOK) --tags traefik
+
 jenkins:
-	$(ANSIBLE_CMD) --tags jenkins
+	$(ANSIBLE_BASE) $(SERVICES_PLAYBOOK) --tags jenkins
 
-## Test SSH connection to the server
+# ── Apps ─────────────────────────────────────────
+apps:
+	$(ANSIBLE_BASE) $(APPS_PLAYBOOK)
+
+portfolio:
+	$(ANSIBLE_BASE) $(APPS_PLAYBOOK) --tags portfolio
+
+# ── Utils ────────────────────────────────────────
 ping:
 	ansible ovh-server -i $(INVENTORY) -m ping --vault-password-file $(VAULT_PASS)
 
-## Show available commands
+check:
+	$(ANSIBLE_BASE) $(SETUP_PLAYBOOK) $(SERVICES_PLAYBOOK) $(APPS_PLAYBOOK) --check --diff
+
+vault-edit:
+	ansible-vault edit ansible/group_vars/all/vault.yml --vault-password-file $(VAULT_PASS)
+
 help:
 	@echo "Usage: make <target>"
 	@echo ""
-	@echo "Targets:"
-	@echo "  all        Run all roles"
-	@echo "  hardening  Run hardening roles (fail2ban)"
-	@echo "  docker     Run Docker roles (docker + networks)"
-	@echo "  services   Run service roles (traefik, jenkins)"
-	@echo "  jenkins    Run Jenkins role only"
-	@echo "  ping       Test SSH connection to the server"
-	@echo "  help       Show this help message"
+	@echo "All:"
+	@echo "  all          Run all playbooks"
+	@echo "  check        Dry-run all playbooks (--check --diff)"
+	@echo ""
+	@echo "Setup:"
+	@echo "  setup        Run full setup playbook"
+	@echo "  hardening    Run hardening role (fail2ban)"
+	@echo "  docker       Run Docker role (docker + networks)"
+	@echo ""
+	@echo "Services:"
+	@echo "  services     Run all services (traefik, jenkins)"
+	@echo "  traefik      Run Traefik only"
+	@echo "  jenkins      Run Jenkins only"
+	@echo ""
+	@echo "Apps:"
+	@echo "  apps         Run all apps"
+	@echo "  portfolio    Run Portfolio only"
+	@echo ""
+	@echo "Utils:"
+	@echo "  ping         Test SSH connection"
+	@echo "  vault-edit   Edit encrypted vault"
+	@echo "  help         Show this help"
 
 .DEFAULT_GOAL := help
-
-.PHONY: all hardening docker services jenkins ping help
+.PHONY: all setup hardening docker services traefik jenkins apps portfolio ping check vault-edit help

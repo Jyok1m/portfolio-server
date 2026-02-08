@@ -1,0 +1,17 @@
+services:
+  portfolio:
+    image: jyok1m/portfolio:latest
+    pull_policy: always
+    container_name: portfolio
+    restart: on-failure
+    networks:
+      - global-network
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.portfolio.rule=Host(`joachimjasmin.com`) || Host(`joachimjasmin.fr`)
+      - traefik.http.routers.portfolio.entrypoints=websecure
+      - traefik.http.routers.portfolio.tls.certresolver=letsencrypt
+      - traefik.http.services.portfolio.loadbalancer.server.port=3000
+
+networks:
+  global-network: { external: true }

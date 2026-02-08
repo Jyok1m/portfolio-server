@@ -1,0 +1,16 @@
+- name: Create portfolio directory
+  ansible.builtin.file:
+    path: /opt/portfolio
+    state: directory
+    mode: "0755"
+
+- name: Copy docker-compose.yml
+  ansible.builtin.copy:
+    src: docker-compose.yml
+    dest: /opt/portfolio/docker-compose.yml
+    mode: "0644"
+
+- name: Run docker compose up
+  ansible.builtin.command:
+    cmd: docker compose up -d
+    chdir: /opt/portfolio

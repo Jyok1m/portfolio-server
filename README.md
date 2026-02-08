@@ -9,6 +9,7 @@ This repository contains the Ansible configuration used to manage my personal OV
 - **Security hardening** — Fail2ban
 - **Base setup** — Docker, Docker networks
 - **Services** — Traefik reverse proxy with automatic HTTPS, Jenkins CI/CD
+- **Apps** — Portfolio website
 
 ---
 
@@ -32,16 +33,19 @@ This repository contains the Ansible configuration used to manage my personal OV
 ├── ansible/
 │   ├── group_vars/
 │   │   └── all/
-│   │       └── vault.yml         # Encrypted secrets (ansible-vault)
+│   │       └── vault.yml           # Encrypted secrets (ansible-vault)
 │   ├── roles/
-│   │   ├── docker/               # Docker installation
-│   │   ├── fail2ban/             # Brute-force protection
-│   │   ├── networks/             # Docker networks
-│   │   ├── traefik/              # Traefik reverse proxy + ACME
-│   │   └── jenkins/              # Jenkins CI/CD server
-│   ├── .vault_pass               # Vault password file (git-ignored)
-│   ├── inventory.yml             # Host inventory
-│   └── playbook.yml              # Main playbook (all roles)
+│   │   ├── docker/                 # Docker installation
+│   │   ├── fail2ban/               # Brute-force protection
+│   │   ├── networks/               # Docker networks
+│   │   ├── traefik/                # Traefik reverse proxy + ACME
+│   │   ├── jenkins/                # Jenkins CI/CD server
+│   │   └── portfolio/              # Portfolio website
+│   ├── .vault_pass                 # Vault password file (git-ignored)
+│   ├── inventory.yml               # Host inventory
+│   ├── setup.yml                   # Setup playbook (hardening + docker)
+│   ├── services.yml                # Services playbook (traefik + jenkins)
+│   └── apps.yml                    # Apps playbook (portfolio)
 └── README.md
 ```
 
@@ -119,21 +123,28 @@ ovh-server | SUCCESS => {
 
 | Command          | Description                              |
 |------------------|------------------------------------------|
-| `make all`       | Run all roles                            |
-| `make hardening` | Run hardening roles (fail2ban)           |
+| `make all`       | Run all playbooks                        |
+| `make setup`     | Run full setup playbook                  |
+| `make hardening` | Run hardening role (fail2ban)            |
 | `make docker`    | Run Docker roles (docker + networks)     |
-| `make services`  | Run service roles (traefik, jenkins)     |
-| `make jenkins`   | Run Jenkins role only                    |
+| `make services`  | Run all services (traefik, jenkins)      |
+| `make traefik`   | Run Traefik only                         |
+| `make jenkins`   | Run Jenkins only                         |
+| `make apps`      | Run all apps                             |
+| `make portfolio` | Run Portfolio only                       |
 | `make ping`      | Test SSH connection to the server        |
+| `make check`     | Dry-run all playbooks (--check --diff)   |
+| `make vault-edit`| Edit encrypted vault                     |
 | `make help`      | Show available commands                  |
 
-| Role     | Tag         | Description                               |
-|----------|-------------|-------------------------------------------|
-| fail2ban | hardening   | Brute-force IP protection                 |
-| docker   | docker      | Container runtime + orchestration         |
-| networks | docker      | Docker networks for the services          |
-| traefik  | services    | Reverse proxy with automatic HTTPS (ACME) |
-| jenkins  | services    | CI/CD server (build + push to Docker Hub) |
+| Role      | Playbook     | Tag         | Description                               |
+|-----------|--------------|-------------|-------------------------------------------|
+| fail2ban  | setup.yml    | hardening   | Brute-force IP protection                 |
+| docker    | setup.yml    | docker      | Container runtime + orchestration         |
+| networks  | setup.yml    | docker      | Docker networks for the services          |
+| traefik   | services.yml | traefik     | Reverse proxy with automatic HTTPS (ACME) |
+| jenkins   | services.yml | jenkins     | CI/CD server (build + push to Docker Hub) |
+| portfolio | apps.yml     | portfolio   | Portfolio website                         |
 
 > **Note:** SSH hardening (port + auth config) is intentionally done manually on the server to prevent access lock.
 
