@@ -8,4 +8,4 @@
     - { role: fail2ban, tags: hardening }
     - { role: docker, tags: docker }
     - { role: networks, tags: docker }
-    - { role: traefik, tags: services }
+    - { role: monitoring, tags: monitoring }

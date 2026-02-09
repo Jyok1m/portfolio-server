@@ -1,0 +1,28 @@
+- name: Create monitoring directory
+  ansible.builtin.file:
+    path: /opt/monitoring
+    state: directory
+    mode: "0755"
+
+- name: Copy prometheus.yml
+  ansible.builtin.copy:
+    src: prometheus.yml
+    dest: /opt/monitoring/prometheus.yml
+    mode: "0644"
+
+- name: Copy grafana folder
+  ansible.builtin.copy:
+    src: grafana/
+    dest: /opt/monitoring/grafana/
+    mode: "0644"
+
+- name: Copy docker-compose.yml
+  ansible.builtin.copy:
+    src: docker-compose.yml
+    dest: /opt/monitoring/docker-compose.yml
+    mode: "0644"
+
+- name: Run docker compose up
+  ansible.builtin.command:
+    cmd: docker compose up -d
+    chdir: /opt/monitoring

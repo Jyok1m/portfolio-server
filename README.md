@@ -8,6 +8,7 @@ This repository contains the Ansible configuration used to manage my personal OV
 
 - **Security hardening** — Fail2ban
 - **Base setup** — Docker, Docker networks
+- **Monitoring** — Prometheus, Grafana, Node Exporter
 - **Services** — Traefik reverse proxy with automatic HTTPS, Jenkins CI/CD
 - **Apps** — Portfolio website
 
@@ -40,6 +41,7 @@ This repository contains the Ansible configuration used to manage my personal OV
 │   │   ├── networks/               # Docker networks
 │   │   ├── traefik/                # Traefik reverse proxy + ACME
 │   │   ├── jenkins/                # Jenkins CI/CD server
+│   │   ├── monitoring/             # Prometheus + Grafana + Node Exporter
 │   │   └── portfolio/              # Portfolio website
 │   ├── .vault_pass                 # Vault password file (git-ignored)
 │   ├── inventory.yml               # Host inventory
@@ -127,6 +129,7 @@ ovh-server | SUCCESS => {
 | `make setup`     | Run full setup playbook                  |
 | `make hardening` | Run hardening role (fail2ban)            |
 | `make docker`    | Run Docker roles (docker + networks)     |
+| `make monitoring`| Run monitoring stack                     |
 | `make services`  | Run all services (traefik, jenkins)      |
 | `make traefik`   | Run Traefik only                         |
 | `make jenkins`   | Run Jenkins only                         |
@@ -142,6 +145,7 @@ ovh-server | SUCCESS => {
 | fail2ban  | setup.yml    | hardening   | Brute-force IP protection                 |
 | docker    | setup.yml    | docker      | Container runtime + orchestration         |
 | networks  | setup.yml    | docker      | Docker networks for the services          |
+| monitoring| setup.yml    | monitoring  | Prometheus, Grafana, Node Exporter        |
 | traefik   | services.yml | traefik     | Reverse proxy with automatic HTTPS (ACME) |
 | jenkins   | services.yml | jenkins     | CI/CD server (build + push to Docker Hub) |
 | portfolio | apps.yml     | portfolio   | Portfolio website                         |

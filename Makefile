@@ -21,6 +21,9 @@ hardening:
 docker:
 	$(ANSIBLE_BASE) $(SETUP_PLAYBOOK) --tags docker
 
+monitoring:
+	$(ANSIBLE_BASE) $(SETUP_PLAYBOOK) --tags monitoring
+
 # ── Services ─────────────────────────────────────
 services:
 	$(ANSIBLE_BASE) $(SERVICES_PLAYBOOK)
@@ -59,6 +62,7 @@ help:
 	@echo "  setup        Run full setup playbook"
 	@echo "  hardening    Run hardening role (fail2ban)"
 	@echo "  docker       Run Docker role (docker + networks)"
+	@echo "  monitoring   Run monitoring stack (prometheus + grafana)"
 	@echo ""
 	@echo "Services:"
 	@echo "  services     Run all services (traefik, jenkins)"
@@ -75,4 +79,4 @@ help:
 	@echo "  help         Show this help"
 
 .DEFAULT_GOAL := help
-.PHONY: all setup hardening docker services traefik jenkins apps portfolio ping check vault-edit help
+.PHONY: all setup hardening docker monitoring services traefik jenkins apps portfolio ping check vault-edit help
