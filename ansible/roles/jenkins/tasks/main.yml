@@ -37,7 +37,7 @@
   failed_when: false
   changed_when: false
 
-- name: Setup GitHub SSH known hosts in Jenkins
+- name: Setup GitHub SSH known hosts in Jenkins # Ajout de l'hôte GitHub au container Jenkins
   ansible.builtin.command:
     cmd: >
       docker exec jenkins-gui bash -c
@@ -45,3 +45,64 @@
       ssh-keyscan -t ed25519 github.com >> /var/jenkins_home/.ssh/known_hosts &&
       chown -R jenkins:jenkins /var/jenkins_home/.ssh"
   when: known_hosts_check.rc != 0
+
+- name: Create jenkins user on host # Je dois créer un user "jenkins" au groupe docker pour pouvoir faire de l'extra container
+  ansible.builtin.user:
+    name: jenkins
+    shell: /bin/bash
+    create_home: true
+    groups: docker
+    append: true
+
+- name: Check if deploy key exists in Jenkins container
+  ansible.builtin.command:
+    cmd: docker exec jenkins-gui test -f /var/jenkins_home/.ssh/deploy_key
+  register: deploy_key_check
+  failed_when: false
+  changed_when: false
+
+- name: Generate SSH deploy key in Jenkins container
+  ansible.builtin.command:
+    cmd: >
+      docker exec jenkins-gui bash -c
+      "mkdir -p /var/jenkins_home/.ssh &&
+      ssh-keygen -t ed25519 -C 'jenkins-deploy' -f /var/jenkins_home/.ssh/deploy_key -N '' &&
+      chown -R jenkins:jenkins /var/jenkins_home/.ssh"
+  when: deploy_key_check.rc != 0
+
+- name: Retrieve deploy public key from Jenkins container # Je récup aussi la private key depuis le serveur : docker exec jenkins-gui cat /var/jenkins_home/.ssh/deploy_key
+  ansible.builtin.command:
+    cmd: docker exec jenkins-gui cat /var/jenkins_home/.ssh/deploy_key.pub
+  register: deploy_pub_key
+  changed_when: false
+
+- name: Authorize deploy key for jenkins user
+  ansible.posix.authorized_key:
+    user: jenkins
+    key: "{{ deploy_pub_key.stdout }}"
+    state: present
+
+- name: Get Docker gateway IP for jenkins-network
+  ansible.builtin.command:
+    cmd: docker network inspect jenkins-network --format '{{ "{{" }}range .IPAM.Config{{ "}}" }}{{ "{{" }}.Gateway{{ "}}" }}{{ "{{" }}end{{ "}}" }}'
+  register: docker_gateway
+  changed_when: false
+
+- name: Check if host gateway is in known_hosts
+  ansible.builtin.command:
+    cmd: docker exec jenkins-gui grep -q "{{ docker_gateway.stdout }}" /var/jenkins_home/.ssh/known_hosts
+  register: host_known_check
+  failed_when: false
+  changed_when: false
+
+- name: Add host gateway to known_hosts in Jenkins container
+  ansible.builtin.command:
+    cmd: >
+      docker exec jenkins-gui bash -c
+      "ssh-keyscan -t ed25519 -p 9822 {{ docker_gateway.stdout }} >> /var/jenkins_home/.ssh/known_hosts &&
+      chown jenkins:jenkins /var/jenkins_home/.ssh/known_hosts"
+  when: host_known_check.rc != 0
+
+- name: Display Docker gateway IP # host-gateway-ip à ajouter dans Jenkins
+  ansible.builtin.debug:
+    msg: "{{ docker_gateway.stdout }}"
