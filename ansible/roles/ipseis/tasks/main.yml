@@ -1,0 +1,20 @@
+- name: Create directory
+  ansible.builtin.file:
+    path: /opt/ipseis
+    state: directory
+    mode: "0755"
+
+- name: Copy project files
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/opt/ipseis/{{ item }}"
+    mode: "0644"
+  loop:
+    - .env.dev
+    - .env.prod
+    - docker-compose.yml
+
+- name: Run docker compose up
+  ansible.builtin.command:
+    cmd: docker compose --profile dev --profile prod up -d
+    chdir: /opt/ipseis

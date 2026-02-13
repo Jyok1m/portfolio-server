@@ -1,4 +1,4 @@
 .claude/
 .idea/
 ansible/.vault_pass
-ansible/roles/*/files/.env
+ansible/roles/*/files/.env*

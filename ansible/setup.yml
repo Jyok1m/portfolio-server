@@ -7,5 +7,5 @@
   roles:
     - { role: fail2ban, tags: hardening }
     - { role: docker, tags: docker }
-    - { role: networks, tags: docker }
+    - { role: networks, tags: networks }
     - { role: monitoring, tags: monitoring }

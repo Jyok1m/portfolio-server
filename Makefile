@@ -21,6 +21,9 @@ hardening:
 docker:
 	$(ANSIBLE_BASE) $(SETUP_PLAYBOOK) --tags docker
 
+networks:
+	$(ANSIBLE_BASE) $(SETUP_PLAYBOOK) --tags networks
+
 monitoring:
 	$(ANSIBLE_BASE) $(SETUP_PLAYBOOK) --tags monitoring
 
@@ -40,6 +43,9 @@ apps:
 
 portfolio:
 	$(ANSIBLE_BASE) $(APPS_PLAYBOOK) --tags portfolio
+
+ipseis:
+	$(ANSIBLE_BASE) $(APPS_PLAYBOOK) --tags ipseis
 
 # ── Utils ────────────────────────────────────────
 ping:
@@ -61,7 +67,8 @@ help:
 	@echo "Setup:"
 	@echo "  setup        Run full setup playbook"
 	@echo "  hardening    Run hardening role (fail2ban)"
-	@echo "  docker       Run Docker role (docker + networks)"
+	@echo "  docker       Run Docker role (docker)"
+	@echo "  networks       Run Networks role (networks)"
 	@echo "  monitoring   Run monitoring stack (prometheus + grafana)"
 	@echo ""
 	@echo "Services:"
@@ -72,6 +79,7 @@ help:
 	@echo "Apps:"
 	@echo "  apps         Run all apps"
 	@echo "  portfolio    Run Portfolio only"
+	@echo "  ipseis    Run Ipseis only"
 	@echo ""
 	@echo "Utils:"
 	@echo "  ping         Test SSH connection"

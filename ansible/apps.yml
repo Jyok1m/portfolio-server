@@ -7,3 +7,4 @@
       no_log: true
   roles:
     - { role: portfolio, tags: portfolio }
+    - { role: ipseis, tags: ipseis }

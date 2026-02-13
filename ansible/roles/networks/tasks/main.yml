@@ -16,6 +16,12 @@
     driver: bridge
     state: present
 
+- name: Create ipseis-network
+  community.docker.docker_network:
+    name: ipseis-network
+    driver: bridge
+    state: present
+
 - name: Create llama-network
   community.docker.docker_network:
     name: llama-network
