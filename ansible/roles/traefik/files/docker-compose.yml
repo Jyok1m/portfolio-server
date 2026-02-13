@@ -17,6 +17,10 @@ services:
       - "--certificatesresolvers.letsencrypt.acme.email=joachim.jasmin-dev@proton.me"
       - "--certificatesresolvers.letsencrypt.acme.storage=/acme.json"
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      # PROMETHEUS
+      - "--metrics.prometheus=true"
+      - "--metrics.prometheus.entryPoint=metrics"
+      - "--entrypoints.metrics.address=:8082"
     ports:
       - "80:80"
       - "443:443"
@@ -25,10 +29,10 @@ services:
       - ./acme.json:/acme.json
     restart: unless-stopped
     networks:
-      - global-network
-      - mailcowdockerized_mailcow-network
-      - odyssai-network
-      - llama-network
+      global-network:
+      mailcowdockerized_mailcow-network:
+      odyssai-network:
+      llama-network:
 
 networks:
   global-network:
