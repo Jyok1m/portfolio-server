@@ -20,6 +20,19 @@ services:
       traefik.http.services.ipseis_backend_dev.loadbalancer.server.port: "3000"
       traefik.http.routers.ipseis_backend_dev.rule: Host(`ipseis-dev-backend.joachimjasmin.fr`)
 
+  ipseis-backend-dev:
+    container_name: ipseis-backend-stg
+    image: jyok1m/ipseis-backend:stg
+    profiles: [stg]
+    env_file: [.env.stg]
+    <<: *ipseis-backend-base
+    labels:
+      <<: *ipseis-labels
+      traefik.http.routers.ipseis_backend_stg.entrypoints: websecure
+      traefik.http.routers.ipseis_backend_stg.tls.certresolver: letsencrypt
+      traefik.http.services.ipseis_backend_stg.loadbalancer.server.port: "3000"
+      traefik.http.routers.ipseis_backend_stg.rule: Host(`ipseis-stg-backend.joachimjasmin.fr`)
+
   ipseis-backend-prod:
     container_name: ipseis-backend-prod
     image: jyok1m/ipseis-backend:latest
