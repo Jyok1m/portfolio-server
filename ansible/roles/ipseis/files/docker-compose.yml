@@ -20,9 +20,9 @@ services:
       traefik.http.services.ipseis_backend_dev.loadbalancer.server.port: "3000"
       traefik.http.routers.ipseis_backend_dev.rule: Host(`ipseis-dev-backend.joachimjasmin.fr`)
 
-  ipseis-backend-dev:
+  ipseis-backend-stg:
     container_name: ipseis-backend-stg
-    image: jyok1m/ipseis-backend:stg
+    image: jyok1m/ipseis-backend:staging
     profiles: [stg]
     env_file: [.env.stg]
     <<: *ipseis-backend-base
