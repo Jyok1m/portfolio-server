@@ -4,6 +4,19 @@
     state: directory
     mode: "0755"
 
+- name: Create uploads directories
+  ansible.builtin.file:
+    path: "/opt/ipseis/data/{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - dev/uploads/contracts
+    - dev/uploads/resources
+    - stg/uploads/contracts
+    - stg/uploads/resources
+    - prod/uploads/contracts
+    - prod/uploads/resources
+
 - name: Copy project files
   ansible.builtin.copy:
     src: "{{ item }}"
@@ -11,6 +24,7 @@
     mode: "0644"
   loop:
     - .env.dev
+    - .env.stg
     - .env.prod
     - docker-compose.yml
 

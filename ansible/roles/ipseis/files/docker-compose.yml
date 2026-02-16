@@ -12,6 +12,8 @@ services:
     image: jyok1m/ipseis-backend:dev
     profiles: [dev]
     env_file: [.env.dev]
+    volumes:
+      - /opt/ipseis/data/dev/uploads:/app/public/uploads
     <<: *ipseis-backend-base
     labels:
       <<: *ipseis-labels
@@ -25,6 +27,8 @@ services:
     image: jyok1m/ipseis-backend:staging
     profiles: [stg]
     env_file: [.env.stg]
+    volumes:
+      - /opt/ipseis/data/stg/uploads:/app/public/uploads
     <<: *ipseis-backend-base
     labels:
       <<: *ipseis-labels
@@ -38,6 +42,8 @@ services:
     image: jyok1m/ipseis-backend:latest
     profiles: [prod]
     env_file: [.env.prod]
+    volumes:
+      - /opt/ipseis/data/prod/uploads:/app/public/uploads
     <<: *ipseis-backend-base
     labels:
       <<: *ipseis-labels
