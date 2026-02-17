@@ -1,0 +1,45 @@
+x-mongo-base: &mongo-base
+  image: mongo:8.2.5
+  restart: unless-stopped
+  networks:
+    - global-network
+  command: --wiredTigerCacheSizeGB 1
+
+services:
+  mongo-dev:
+    <<: *mongo-base
+    container_name: mongo-dev
+    volumes:
+      - mongo-dev-data:/data/db
+      - ./init-scripts:/docker-entrypoint-initdb.d:ro
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_DEV_ROOT_PASSWORD}
+
+  mongo-stg:
+    <<: *mongo-base
+    container_name: mongo-stg
+    volumes:
+      - mongo-stg-data:/data/db
+      - ./init-scripts:/docker-entrypoint-initdb.d:ro
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_STG_ROOT_PASSWORD}
+
+  mongo-prod:
+    <<: *mongo-base
+    container_name: mongo-prod
+    volumes:
+      - mongo-prod-data:/data/db
+      - ./init-scripts:/docker-entrypoint-initdb.d:ro
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PROD_ROOT_PASSWORD}
+
+volumes:
+  mongo-dev-data:
+  mongo-stg-data:
+  mongo-prod-data:
+
+networks:
+  global-network: { external: true }

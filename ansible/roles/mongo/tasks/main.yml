@@ -1,0 +1,19 @@
+- name: Create directory
+  ansible.builtin.file:
+    path: /opt/mongo
+    state: directory
+    mode: "0755"
+
+- name: Copy project files
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/opt/mongo/{{ item }}"
+    mode: "0644"
+  loop:
+    - .env
+    - docker-compose.yml
+
+- name: Run docker compose up
+  ansible.builtin.command:
+    cmd: docker compose up -d
+    chdir: /opt/mongo

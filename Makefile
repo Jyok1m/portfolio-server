@@ -6,6 +6,7 @@ ANSIBLE_BASE = ansible-playbook -i $(INVENTORY) --vault-password-file $(VAULT_PA
 SETUP_PLAYBOOK = ansible/setup.yml
 SERVICES_PLAYBOOK = ansible/services.yml
 APPS_PLAYBOOK = ansible/apps.yml
+DATABASES_PLAYBOOK = ansible/databases.yml
 
 # ── All ──────────────────────────────────────────
 all:
@@ -47,6 +48,12 @@ portfolio:
 ipseis:
 	$(ANSIBLE_BASE) $(APPS_PLAYBOOK) --tags ipseis
 
+databases:
+	$(ANSIBLE_BASE) $(DATABASES_PLAYBOOK)
+
+mongo:
+	$(ANSIBLE_BASE) $(DATABASES_PLAYBOOK) --tags mongo
+
 # ── Utils ────────────────────────────────────────
 ping:
 	ansible ovh-server -i $(INVENTORY) -m ping --vault-password-file $(VAULT_PASS)
@@ -80,6 +87,9 @@ help:
 	@echo "  apps         Run all apps"
 	@echo "  portfolio    Run Portfolio only"
 	@echo "  ipseis    Run Ipseis only"
+	@echo "Databases:"
+	@echo "  databases         Run all databases"
+	@echo "  mongo    Run Mongo only"
 	@echo ""
 	@echo "Utils:"
 	@echo "  ping         Test SSH connection"
