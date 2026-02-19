@@ -1,0 +1,8 @@
+---
+monitoring_deploy_path: "{{ deploy_base_path }}/monitoring"
+monitoring_prometheus_image: "prom/prometheus:{{ prometheus_image_version }}"
+monitoring_grafana_image: "grafana/grafana:{{ grafana_image_version }}"
+monitoring_node_exporter_image: "prom/node-exporter:{{ node_exporter_image_version }}"
+monitoring_cadvisor_image: "ghcr.io/google/cadvisor:{{ cadvisor_image_version }}"
+monitoring_prometheus_subdomain: prometheus
+monitoring_grafana_subdomain: grafana

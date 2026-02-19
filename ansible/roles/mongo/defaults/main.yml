@@ -1,0 +1,3 @@
+---
+mongo_deploy_path: "{{ deploy_base_path }}/mongo"
+mongo_image: "mongo:{{ mongo_image_version }}"

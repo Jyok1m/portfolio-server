@@ -1,0 +1,8 @@
+---
+- name: Applications
+  hosts: ovh-server
+  become: true
+  roles:
+    - { role: docker_login, tags: [portfolio, ipseis] }
+    - { role: portfolio, tags: portfolio }
+    - { role: ipseis, tags: ipseis }

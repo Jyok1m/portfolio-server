@@ -1,0 +1,8 @@
+---
+- name: Services
+  hosts: ovh-server
+  become: true
+  roles:
+    - { role: docker_login, tags: [traefik, jenkins] }
+    - { role: traefik, tags: traefik }
+    - { role: jenkins, tags: jenkins }

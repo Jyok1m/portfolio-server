@@ -1,0 +1,7 @@
+---
+galaxy_info:
+  role_name: traefik
+  description: Deploy Traefik reverse proxy with Let's Encrypt
+  min_ansible_version: "2.15"
+dependencies:
+  - docker

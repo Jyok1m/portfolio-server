@@ -1,34 +1,42 @@
-- name: Create directory
+---
+- name: Create ipseis directory
   ansible.builtin.file:
-    path: /opt/ipseis
+    path: "{{ ipseis_deploy_path }}"
     state: directory
     mode: "0755"
 
 - name: Create uploads directories
   ansible.builtin.file:
-    path: "/opt/ipseis/data/{{ item }}"
+    path: "{{ ipseis_deploy_path }}/data/{{ item.0.key }}/uploads/{{ item.1 }}"
     state: directory
     mode: "0755"
-  loop:
-    - dev/uploads/contracts
-    - dev/uploads/resources
-    - stg/uploads/contracts
-    - stg/uploads/resources
-    - prod/uploads/contracts
-    - prod/uploads/resources
+  loop: "{{ ipseis_environments | dict2items | product(['contracts', 'resources']) | list }}"
+  loop_control:
+    label: "{{ item.0.key }}/uploads/{{ item.1 }}"
 
-- name: Copy project files
-  ansible.builtin.copy:
-    src: "{{ item }}"
-    dest: "/opt/ipseis/{{ item }}"
+- name: Template .env files
+  ansible.builtin.template:
+    src: env.j2
+    dest: "{{ ipseis_deploy_path }}/.env.{{ item.key }}"
+    mode: "0600"
+  loop: "{{ ipseis_environments | dict2items }}"
+  loop_control:
+    label: ".env.{{ item.key }}"
+  vars:
+    env_name: "{{ item.key }}"
+    env_config: "{{ item.value }}"
+    mongo_password: "{{ lookup('vars', 'vault_mongo_' + item.key + '_root_password') }}"
+  notify: Restart ipseis
+
+- name: Template docker-compose.yml
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ ipseis_deploy_path }}/docker-compose.yml"
     mode: "0644"
-  loop:
-    - .env.dev
-    - .env.stg
-    - .env.prod
-    - docker-compose.yml
+  notify: Restart ipseis
 
-- name: Run docker compose up
+- name: Ensure ipseis is running
   ansible.builtin.command:
     cmd: docker compose --profile dev --profile stg --profile prod up -d
-    chdir: /opt/ipseis
+    chdir: "{{ ipseis_deploy_path }}"
+  changed_when: false

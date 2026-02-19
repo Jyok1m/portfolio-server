@@ -1,0 +1,6 @@
+---
+galaxy_info:
+  role_name: docker_login
+  description: Login to Docker Hub registry
+  min_ansible_version: "2.15"
+dependencies: []

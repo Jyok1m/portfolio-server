@@ -1,0 +1,7 @@
+---
+galaxy_info:
+  role_name: monitoring
+  description: Deploy monitoring stack (Prometheus, Grafana, Node Exporter, cAdvisor)
+  min_ansible_version: "2.15"
+dependencies:
+  - docker

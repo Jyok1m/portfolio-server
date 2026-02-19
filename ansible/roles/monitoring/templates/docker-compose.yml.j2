@@ -1,0 +1,86 @@
+services:
+  prometheus:
+    image: {{ monitoring_prometheus_image }}
+    container_name: prometheus
+    volumes:
+      - prometheus_data:/prometheus
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.console.libraries=/etc/prometheus/console_libraries
+      - --web.console.templates=/etc/prometheus/consoles
+      - --storage.tsdb.retention.time={{ prometheus_retention_time }}
+      - --web.enable-lifecycle
+      - --web.external-url=https://{{ monitoring_prometheus_subdomain }}.{{ base_domain }}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.prom.rule=Host(`{{ monitoring_prometheus_subdomain }}.{{ base_domain }}`)
+      - traefik.http.routers.prom.entrypoints=websecure
+      - traefik.http.routers.prom.tls.certresolver=letsencrypt
+      - traefik.http.services.prom.loadbalancer.server.port=9090
+    restart: unless-stopped
+    networks:
+      - global-network
+
+  grafana:
+    image: {{ monitoring_grafana_image }}
+    container_name: grafana
+    environment:
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=https://{{ monitoring_grafana_subdomain }}.{{ base_domain }}
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+      - GF_METRICS_ENABLED="true"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.grafana.rule=Host(`{{ monitoring_grafana_subdomain }}.{{ base_domain }}`)
+      - traefik.http.routers.grafana.entrypoints=websecure
+      - traefik.http.routers.grafana.tls.certresolver=letsencrypt
+      - traefik.http.services.grafana.loadbalancer.server.port=3000
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    networks:
+      - global-network
+
+  node-exporter:
+    image: {{ monitoring_node_exporter_image }}
+    container_name: node-exporter
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - --path.procfs=/host/proc
+      - --path.rootfs=/rootfs
+      - --path.sysfs=/host/sys
+      - --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)
+    restart: unless-stopped
+    networks:
+      - global-network
+
+  cadvisor:
+    image: {{ monitoring_cadvisor_image }}
+    container_name: cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    privileged: true
+    devices:
+      - /dev/kmsg:/dev/kmsg
+    restart: unless-stopped
+    networks:
+      - global-network
+
+networks:
+  global-network: { external: true }
+
+volumes:
+  prometheus_data:
+  grafana_data:

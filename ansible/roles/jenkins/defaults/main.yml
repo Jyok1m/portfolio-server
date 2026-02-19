@@ -1,0 +1,5 @@
+---
+jenkins_deploy_path: "{{ deploy_base_path }}/jenkins"
+jenkins_base_image: "jenkins/jenkins:{{ jenkins_base_image_version }}"
+jenkins_image: "{{ dockerhub_username }}/jenkins:latest"
+jenkins_subdomain: jenkins

@@ -1,4 +1,0 @@
-- hosts: ovh-server
-  become: yes
-  roles:
-    - { role: mongo, tags: mongo }

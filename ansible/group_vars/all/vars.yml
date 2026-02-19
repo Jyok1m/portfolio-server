@@ -1,0 +1,69 @@
+---
+# ── Domains ──────────────────────────────────────
+base_domain: joachimjasmin.com
+base_domain_fr: joachimjasmin.fr
+acme_email: joachim.jasmin-dev@proton.me
+
+# ── Docker Hub ───────────────────────────────────
+dockerhub_username: jyok1m
+
+# ── Base paths ───────────────────────────────────
+deploy_base_path: /opt
+
+# ── Image versions ───────────────────────────────
+mongo_image_version: "8.2.5"
+prometheus_image_version: "v3.7.3"
+grafana_image_version: "12.4.0-19303720460"
+node_exporter_image_version: "v1.10.2"
+cadvisor_image_version: "0.55.1"
+traefik_image_version: "v3"
+jenkins_base_image_version: "2.541.1-jdk21"
+
+# ── Prometheus ───────────────────────────────────
+prometheus_retention_time: "200h"
+
+# ── Docker networks ──────────────────────────────
+docker_networks:
+  - global-network
+  - jenkins-network
+  - odyssai-network
+  - ipseis-network
+  - llama-network
+
+# ── MongoDB ──────────────────────────────────────
+mongo_root_user: admin
+
+mongo_environments:
+  dev:
+    container_name: mongo-dev
+    localhost_port: "27017"
+  stg:
+    container_name: mongo-stg
+    localhost_port: "27018"
+  prod:
+    container_name: mongo-prod
+    localhost_port: "27019"
+
+# ── Ipseis ───────────────────────────────────────
+ipseis_environments:
+  dev:
+    image_tag: dev
+    frontend_url: "https://ipseis-git-dev-joachim-jasmins-projects.vercel.app"
+    mongo_host: mongo-dev
+    mongo_db: ipseis_dev
+    subdomain: ipseis-dev-backend
+    nodemailer_email_to: "joachim.jasmin-dev@proton.me"
+  stg:
+    image_tag: staging
+    frontend_url: "https://ipseis-git-stg-joachim-jasmins-projects.vercel.app"
+    mongo_host: mongo-stg
+    mongo_db: ipseis_stg
+    subdomain: ipseis-stg-backend
+    nodemailer_email_to: "helenedm@ipseis.fr"
+  prod:
+    image_tag: latest
+    frontend_url: "https://ipseis.fr"
+    mongo_host: mongo-prod
+    mongo_db: ipseis_prod
+    subdomain: ipseis-backend
+    nodemailer_email_to: "helenedm@ipseis.fr"

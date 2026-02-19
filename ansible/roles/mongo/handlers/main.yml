@@ -1,0 +1,5 @@
+---
+- name: Restart mongo
+  ansible.builtin.command:
+    cmd: docker compose up -d --force-recreate
+    chdir: "{{ mongo_deploy_path }}"

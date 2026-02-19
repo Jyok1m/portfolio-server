@@ -1,0 +1,5 @@
+---
+- name: Restart ipseis
+  ansible.builtin.command:
+    cmd: docker compose --profile dev --profile stg --profile prod up -d --force-recreate
+    chdir: "{{ ipseis_deploy_path }}"

@@ -1,19 +1,26 @@
-- name: Create directory
+---
+- name: Create mongo directory
   ansible.builtin.file:
-    path: /opt/mongo
+    path: "{{ mongo_deploy_path }}"
     state: directory
     mode: "0755"
 
-- name: Copy project files
-  ansible.builtin.copy:
-    src: "{{ item }}"
-    dest: "/opt/mongo/{{ item }}"
-    mode: "0644"
-  loop:
-    - .env
-    - docker-compose.yml
+- name: Template .env
+  ansible.builtin.template:
+    src: env.j2
+    dest: "{{ mongo_deploy_path }}/.env"
+    mode: "0600"
+  notify: Restart mongo
 
-- name: Run docker compose up
+- name: Template docker-compose.yml
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ mongo_deploy_path }}/docker-compose.yml"
+    mode: "0644"
+  notify: Restart mongo
+
+- name: Ensure mongo is running
   ansible.builtin.command:
     cmd: docker compose up -d
-    chdir: /opt/mongo
+    chdir: "{{ mongo_deploy_path }}"
+  changed_when: false

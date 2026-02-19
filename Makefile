@@ -1,12 +1,10 @@
-INVENTORY = ansible/inventory.yml
-VAULT_PASS = ansible/.vault_pass
+ANSIBLE_DIR = ansible
+ANSIBLE_BASE = cd $(ANSIBLE_DIR) && ansible-playbook
 
-ANSIBLE_BASE = ansible-playbook -i $(INVENTORY) --vault-password-file $(VAULT_PASS)
-
-SETUP_PLAYBOOK = ansible/setup.yml
-SERVICES_PLAYBOOK = ansible/services.yml
-APPS_PLAYBOOK = ansible/apps.yml
-DATABASES_PLAYBOOK = ansible/databases.yml
+SETUP_PLAYBOOK = playbooks/setup.yml
+SERVICES_PLAYBOOK = playbooks/services.yml
+APPS_PLAYBOOK = playbooks/apps.yml
+DATABASES_PLAYBOOK = playbooks/databases.yml
 
 # ── All ──────────────────────────────────────────
 all:
@@ -48,6 +46,7 @@ portfolio:
 ipseis:
 	$(ANSIBLE_BASE) $(APPS_PLAYBOOK) --tags ipseis
 
+# ── Databases ────────────────────────────────────
 databases:
 	$(ANSIBLE_BASE) $(DATABASES_PLAYBOOK)
 
@@ -55,46 +54,51 @@ mongo:
 	$(ANSIBLE_BASE) $(DATABASES_PLAYBOOK) --tags mongo
 
 # ── Utils ────────────────────────────────────────
+install-deps:
+	cd $(ANSIBLE_DIR) && ansible-galaxy install -r requirements.yml
+
 ping:
-	ansible ovh-server -i $(INVENTORY) -m ping --vault-password-file $(VAULT_PASS)
+	cd $(ANSIBLE_DIR) && ansible ovh-server -m ping
 
 check:
 	$(ANSIBLE_BASE) $(SETUP_PLAYBOOK) $(SERVICES_PLAYBOOK) $(APPS_PLAYBOOK) --check --diff
 
 vault-edit:
-	ansible-vault edit ansible/group_vars/all/vault.yml --vault-password-file $(VAULT_PASS)
+	cd $(ANSIBLE_DIR) && ansible-vault edit group_vars/all/vault.yml
 
 help:
 	@echo "Usage: make <target>"
 	@echo ""
 	@echo "All:"
-	@echo "  all          Run all playbooks"
-	@echo "  check        Dry-run all playbooks (--check --diff)"
+	@echo "  all            Run all playbooks"
+	@echo "  check          Dry-run all playbooks (--check --diff)"
 	@echo ""
 	@echo "Setup:"
-	@echo "  setup        Run full setup playbook"
-	@echo "  hardening    Run hardening role (fail2ban)"
-	@echo "  docker       Run Docker role (docker)"
-	@echo "  networks       Run Networks role (networks)"
-	@echo "  monitoring   Run monitoring stack (prometheus + grafana)"
+	@echo "  setup          Run full setup playbook"
+	@echo "  hardening      Run hardening role (fail2ban)"
+	@echo "  docker         Run Docker role"
+	@echo "  networks       Run Networks role"
+	@echo "  monitoring     Run monitoring stack (prometheus + grafana)"
 	@echo ""
 	@echo "Services:"
-	@echo "  services     Run all services (traefik, jenkins)"
-	@echo "  traefik      Run Traefik only"
-	@echo "  jenkins      Run Jenkins only"
+	@echo "  services       Run all services (traefik, jenkins)"
+	@echo "  traefik        Run Traefik only"
+	@echo "  jenkins        Run Jenkins only"
 	@echo ""
 	@echo "Apps:"
-	@echo "  apps         Run all apps"
-	@echo "  portfolio    Run Portfolio only"
-	@echo "  ipseis    Run Ipseis only"
+	@echo "  apps           Run all apps"
+	@echo "  portfolio      Run Portfolio only"
+	@echo "  ipseis         Run Ipseis only"
+	@echo ""
 	@echo "Databases:"
-	@echo "  databases         Run all databases"
-	@echo "  mongo    Run Mongo only"
+	@echo "  databases      Run all databases"
+	@echo "  mongo          Run Mongo only"
 	@echo ""
 	@echo "Utils:"
-	@echo "  ping         Test SSH connection"
-	@echo "  vault-edit   Edit encrypted vault"
-	@echo "  help         Show this help"
+	@echo "  install-deps   Install Ansible collections"
+	@echo "  ping           Test SSH connection"
+	@echo "  vault-edit     Edit encrypted vault"
+	@echo "  help           Show this help"
 
 .DEFAULT_GOAL := help
-.PHONY: all setup hardening docker monitoring services traefik jenkins apps portfolio ping check vault-edit help
+.PHONY: all setup hardening docker networks monitoring services traefik jenkins apps portfolio ipseis databases mongo install-deps ping check vault-edit help

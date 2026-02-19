@@ -1,0 +1,7 @@
+---
+galaxy_info:
+  role_name: ipseis
+  description: Deploy Ipseis backend (dev, stg, prod)
+  min_ansible_version: "2.15"
+dependencies:
+  - docker

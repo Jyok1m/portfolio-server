@@ -1,0 +1,12 @@
+---
+- name: Server setup
+  ansible.builtin.import_playbook: playbooks/setup.yml
+
+- name: Databases
+  ansible.builtin.import_playbook: playbooks/databases.yml
+
+- name: Services
+  ansible.builtin.import_playbook: playbooks/services.yml
+
+- name: Applications
+  ansible.builtin.import_playbook: playbooks/apps.yml

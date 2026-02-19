@@ -1,0 +1,5 @@
+---
+- name: Restart jenkins
+  ansible.builtin.command:
+    cmd: docker compose up -d --force-recreate
+    chdir: "{{ jenkins_deploy_path }}"

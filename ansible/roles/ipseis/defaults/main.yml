@@ -1,0 +1,3 @@
+---
+ipseis_deploy_path: "{{ deploy_base_path }}/ipseis"
+ipseis_backend_image_base: "{{ dockerhub_username }}/ipseis-backend"

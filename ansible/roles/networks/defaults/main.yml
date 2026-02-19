@@ -1,0 +1,3 @@
+---
+mailcow_ipv4_network: "{{ vault_mailcow_ipv4_network | default('172.22.1.0/24') }}"
+mailcow_ipv6_network: "{{ vault_mailcow_ipv6_network | default('fd4d:6169:6c63:6f77::/64') }}"

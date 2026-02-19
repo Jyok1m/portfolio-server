@@ -1,34 +1,37 @@
+---
 - name: Create jenkins directory
   ansible.builtin.file:
-    path: /opt/jenkins
+    path: "{{ jenkins_deploy_path }}"
     state: directory
     mode: "0755"
 
-- name: Copy docker-compose.yml
-  ansible.builtin.copy:
-    src: docker-compose.yml
-    dest: /opt/jenkins/docker-compose.yml
+- name: Template docker-compose.yml
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ jenkins_deploy_path }}/docker-compose.yml"
     mode: "0644"
+  notify: Restart jenkins
 
-- name: Copy Dockerfile
-  ansible.builtin.copy:
-    src: Dockerfile
-    dest: /opt/jenkins/Dockerfile
+- name: Template Dockerfile
+  ansible.builtin.template:
+    src: Dockerfile.j2
+    dest: "{{ jenkins_deploy_path }}/Dockerfile"
     mode: "0644"
 
 - name: Build Jenkins image
   ansible.builtin.command:
-    cmd: docker build -t jyok1m/jenkins:latest .
-    chdir: /opt/jenkins
+    cmd: "docker build -t {{ jenkins_image }} ."
+    chdir: "{{ jenkins_deploy_path }}"
 
 - name: Push Jenkins image to Docker Hub
   ansible.builtin.command:
-    cmd: docker push jyok1m/jenkins:latest
+    cmd: "docker push {{ jenkins_image }}"
 
-- name: Run docker compose up
+- name: Ensure jenkins is running
   ansible.builtin.command:
     cmd: docker compose up -d
-    chdir: /opt/jenkins
+    chdir: "{{ jenkins_deploy_path }}"
+  changed_when: false
 
 - name: Check if known_hosts exists in Jenkins container
   ansible.builtin.command:
@@ -37,7 +40,7 @@
   failed_when: false
   changed_when: false
 
-- name: Setup GitHub SSH known hosts in Jenkins # Ajout de l'hôte GitHub au container Jenkins
+- name: Setup GitHub SSH known hosts in Jenkins
   ansible.builtin.command:
     cmd: >
       docker exec jenkins-gui bash -c
@@ -46,7 +49,7 @@
       chown -R jenkins:jenkins /var/jenkins_home/.ssh"
   when: known_hosts_check.rc != 0
 
-- name: Create jenkins user on host # Je dois créer un user "jenkins" au groupe docker pour pouvoir faire de l'extra container
+- name: Create jenkins user on host
   ansible.builtin.user:
     name: jenkins
     shell: /bin/bash
@@ -70,7 +73,7 @@
       chown -R jenkins:jenkins /var/jenkins_home/.ssh"
   when: deploy_key_check.rc != 0
 
-- name: Retrieve deploy public key from Jenkins container # Je récup aussi la private key depuis le serveur : docker exec jenkins-gui cat /var/jenkins_home/.ssh/deploy_key
+- name: Retrieve deploy public key from Jenkins container
   ansible.builtin.command:
     cmd: docker exec jenkins-gui cat /var/jenkins_home/.ssh/deploy_key.pub
   register: deploy_pub_key
@@ -84,7 +87,7 @@
 
 - name: Get Docker gateway IP for jenkins-network
   ansible.builtin.command:
-    cmd: docker network inspect jenkins-network --format '{{ "{{" }}range .IPAM.Config{{ "}}" }}{{ "{{" }}.Gateway{{ "}}" }}{{ "{{" }}end{{ "}}" }}'
+    cmd: docker network inspect jenkins-network --format '{% raw %}{{range .IPAM.Config}}{{.Gateway}}{{end}}{% endraw %}'
   register: docker_gateway
   changed_when: false
 
@@ -99,10 +102,10 @@
   ansible.builtin.command:
     cmd: >
       docker exec jenkins-gui bash -c
-      "ssh-keyscan -t ed25519 -p 9822 {{ docker_gateway.stdout }} >> /var/jenkins_home/.ssh/known_hosts &&
+      "ssh-keyscan -t ed25519 -p {{ vault_server_port }} {{ docker_gateway.stdout }} >> /var/jenkins_home/.ssh/known_hosts &&
       chown jenkins:jenkins /var/jenkins_home/.ssh/known_hosts"
   when: host_known_check.rc != 0
 
-- name: Display Docker gateway IP # host-gateway-ip à ajouter dans Jenkins
+- name: Display Docker gateway IP
   ansible.builtin.debug:
     msg: "{{ docker_gateway.stdout }}"

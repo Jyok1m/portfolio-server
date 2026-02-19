@@ -1,0 +1,28 @@
+x-mongo-base: &mongo-base
+  image: {{ mongo_image }}
+  restart: unless-stopped
+  networks:
+    - global-network
+  command: --wiredTigerCacheSizeGB 1
+
+services:
+{% for env_name, env in mongo_environments.items() %}
+  {{ env.container_name }}:
+    <<: *mongo-base
+    container_name: {{ env.container_name }}
+    volumes:
+      - {{ env.container_name }}-data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_{{ env_name | upper }}_ROOT_PASSWORD}
+    ports:
+      - "127.0.0.1:{{ env.localhost_port }}:27017"
+{% endfor %}
+
+volumes:
+{% for env_name, env in mongo_environments.items() %}
+  {{ env.container_name }}-data:
+{% endfor %}
+
+networks:
+  global-network: { external: true }

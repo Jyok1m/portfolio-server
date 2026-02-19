@@ -1,0 +1,3 @@
+---
+portfolio_deploy_path: "{{ deploy_base_path }}/portfolio"
+portfolio_image: "{{ dockerhub_username }}/portfolio:latest"

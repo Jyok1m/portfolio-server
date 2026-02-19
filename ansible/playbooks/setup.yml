@@ -1,0 +1,13 @@
+---
+- name: Server setup
+  hosts: ovh-server
+  become: true
+  pre_tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+  roles:
+    - { role: fail2ban, tags: hardening }
+    - { role: docker, tags: docker }
+    - { role: networks, tags: networks }
+    - { role: monitoring, tags: monitoring }

@@ -1,0 +1,29 @@
+x-ipseis-backend: &ipseis-backend-base
+  restart: on-failure
+  labels: &ipseis-labels
+    traefik.enable: "true"
+  networks:
+    - global-network
+    - ipseis-network
+
+services:
+{% for env_name, env in ipseis_environments.items() %}
+  ipseis-backend-{{ env_name }}:
+    container_name: ipseis-backend-{{ env_name }}
+    image: {{ ipseis_backend_image_base }}:{{ env.image_tag }}
+    profiles: [{{ env_name }}]
+    env_file: [.env.{{ env_name }}]
+    volumes:
+      - {{ ipseis_deploy_path }}/data/{{ env_name }}/uploads:/app/public/uploads
+    <<: *ipseis-backend-base
+    labels:
+      <<: *ipseis-labels
+      traefik.http.routers.ipseis_backend_{{ env_name }}.entrypoints: websecure
+      traefik.http.routers.ipseis_backend_{{ env_name }}.tls.certresolver: letsencrypt
+      traefik.http.services.ipseis_backend_{{ env_name }}.loadbalancer.server.port: "3000"
+      traefik.http.routers.ipseis_backend_{{ env_name }}.rule: Host(`{{ env.subdomain }}.{{ base_domain_fr }}`)
+{% endfor %}
+
+networks:
+  global-network: { external: true }
+  ipseis-network: { external: true }

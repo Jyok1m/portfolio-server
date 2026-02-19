@@ -1,0 +1,6 @@
+---
+- name: Databases
+  hosts: ovh-server
+  become: true
+  roles:
+    - { role: mongo, tags: mongo }
